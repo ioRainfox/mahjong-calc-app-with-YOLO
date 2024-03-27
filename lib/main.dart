@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 
 import 'ScreenB.dart'; // ScreenB 파일 import 추가
 import 'Community.dart';
+import 'Guide.dart';
+
 
 
 void main() {
@@ -187,16 +189,25 @@ class _MyAppState extends State<MyApp> {
     return BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
+          icon: Icon(Icons.library_books),
+          label: '족보 가이드',
+        ),
+        BottomNavigationBarItem(
           icon: Icon(Icons.home),
-          label: 'Home',
+          label: '메인',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.people),
           label: '커뮤니티',
         ),
       ],
+      currentIndex: 1,
+      selectedItemColor: Colors.orange,
       onTap: (int index) {
-        if (index == 1) { // 커뮤니티 아이템이 선택되었을 때
+        if (index == 0) { // 커뮤니티 아이템이 선택되었을 때
+          _navigatorKey.currentState!.push(MaterialPageRoute(builder: (context) => Guide())); // 새로운 화면 띄우기
+        }
+        if (index == 2) { // 커뮤니티 아이템이 선택되었을 때
           _navigatorKey.currentState!.push(MaterialPageRoute(builder: (context) => Community())); // 새로운 화면 띄우기
         }
       },
