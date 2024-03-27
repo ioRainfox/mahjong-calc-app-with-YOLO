@@ -4,10 +4,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:untitled1/Community.dart';
 
 import 'ScreenB.dart'; // ScreenB 파일 import 추가
-import 'Community.dart'; // AnotherScreen 파일 import 추가
+import 'Community.dart';
+
 
 void main() {
   runApp(const MyApp());
