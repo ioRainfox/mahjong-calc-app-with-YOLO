@@ -43,6 +43,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  firebase_core: "^2.27.1"
+  firebase_auth: "^4.17.9"
 #  sqflite: ^2.3.2 #sql 쿼리를 사용
 #  mysql_client: ^0.0.27 #mysql 연동
 #  shared_preferences: ^2.2.2 #공유 저장소 사용(자동 로그인)

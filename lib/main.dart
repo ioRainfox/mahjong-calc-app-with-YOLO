@@ -1,14 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
-
-import 'ScreenB.dart';
-// import 'package:mysql_client/mysql_client.dart';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:untitled1/Community.dart';
+
+import 'ScreenB.dart'; // ScreenB 파일 import 추가
+import 'Community.dart'; // AnotherScreen 파일 import 추가
 
 void main() {
   runApp(const MyApp());
@@ -57,25 +56,30 @@ class _MyAppState extends State<MyApp> {
       navigatorKey: _navigatorKey, // Assigning navigator key
       home: Scaffold(
         appBar: AppBar(title: const Text("마작 계산기")),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center, // 체크박스를 가운데로 정렬
-              children: [
-                _check(),
-                const SizedBox(width: 50,),
-                _buildDropdown(),
-              ],
-            ),
-            const SizedBox(height: 30, width: double.infinity),
-            _buildPhotoArea(),
-            const SizedBox(height: 20),
-            _buildButton(),
-            const SizedBox(height: 30,),
-            _calcButton(),
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center, // 체크박스를 가운데로 정렬
+                children: [
+                  _check(),
+                  const SizedBox(width: 50,),
+                  _buildDropdown(),
+                ],
+              ),
+              const SizedBox(height: 30),
+              _buildPhotoArea(),
+              const SizedBox(height: 20),
+              _buildButton(),
+              const SizedBox(height: 30),
+              _calcButton(),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
+        bottomNavigationBar: _BottomBar(), // 하단 바 추가
       ),
     );
   }
@@ -132,9 +136,9 @@ class _MyAppState extends State<MyApp> {
   Widget _buildPhotoArea() {
     return _image != null
         ? Container(
-          width: 300,
-          height: 300,
-          child: Image.file(File(_image!.path)), //가져온 이미지를 화면에 띄워주는 코드
+      width: 300,
+      height: 300,
+      child: Image.file(File(_image!.path)), //가져온 이미지를 화면에 띄워주는 코드
     )
         : Container(
       width: 300,
@@ -175,6 +179,27 @@ class _MyAppState extends State<MyApp> {
           child: const Text("계산 하기"),
         )
       ],
+    );
+
+  }
+
+  Widget _BottomBar() {
+    return BottomNavigationBar(
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.people),
+          label: '커뮤니티',
+        ),
+      ],
+      onTap: (int index) {
+        if (index == 1) { // 커뮤니티 아이템이 선택되었을 때
+          _navigatorKey.currentState!.push(MaterialPageRoute(builder: (context) => Community())); // 새로운 화면 띄우기
+        }
+      },
     );
   }
 }

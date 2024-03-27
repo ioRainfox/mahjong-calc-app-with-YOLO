@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class ScreenB extends StatelessWidget {
-  const ScreenB({Key? key}) : super(key: key);
+class Community extends StatelessWidget {
+  const Community({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("계산 결과")),
+      appBar: AppBar(title: const Text("커뮤니티")),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
