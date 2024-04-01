@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'ScreenB.dart'; // ScreenB 파일 import 추가
 import 'Community.dart';
@@ -57,7 +59,13 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       navigatorKey: _navigatorKey, // Assigning navigator key
       home: Scaffold(
-        appBar: AppBar(title: const Text("마작 계산기")),
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text("마작 계산기"),
+          actions: [
+            _my()
+          ],
+        ),
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -67,7 +75,7 @@ class _MyAppState extends State<MyApp> {
                 mainAxisAlignment: MainAxisAlignment.center, // 체크박스를 가운데로 정렬
                 children: [
                   _check(),
-                  const SizedBox(width: 50,),
+                  const SizedBox(width: 25,),
                   _buildDropdown(),
                 ],
               ),
@@ -86,17 +94,44 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+  Widget _my() {
+    return Row(
+      children: [
+        OutlinedButton(
+            onPressed: () {
+              _navigatorKey.currentState!.push(MaterialPageRoute(builder: (context) => Guide()));
+            },
+          child: const Text('my'),
+        )
+      ],
+    );
+  }
+
   Widget _check() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text('쯔모'),
-        Checkbox(value: tsu, onChanged: (value) {
-          setState(() {
-            tsu = value;
-          });
-        }),
-        const Text('론'),
+        const Text('쯔모', style: TextStyle(fontSize: 20, color: Colors.black),),
+        Checkbox(
+          value: tsu,
+          onChanged: (value) {
+            setState(() {
+              tsu = value;
+            });
+          },
+          shape: RoundedRectangleBorder(
+            borderRadius:
+              BorderRadius.circular(4),
+          ),
+          side: const BorderSide(
+            color: Colors.orange,
+            width: 1,
+          ),
+          activeColor: Colors.orange,
+          checkColor: Colors.white,
+        ),
+
+        const Text('론', style: TextStyle(fontSize: 20, color: Colors.black),),
         Checkbox(
           value: lo,
           onChanged: (value) {
@@ -104,8 +139,19 @@ class _MyAppState extends State<MyApp> {
               lo = value;
             });
           },
+          shape: RoundedRectangleBorder(
+            borderRadius:
+              BorderRadius.circular(4),
+          ),
+          side: const BorderSide(
+            color: Colors.orange,
+            width: 1,
+          ),
+          activeColor: Colors.orange,
+          checkColor: Colors.white,
         ),
-        const Text('리치'),
+
+        const Text('리치', style: TextStyle(fontSize: 20, color: Colors.black),),
         Checkbox(
           value: li,
           onChanged: (value) {
@@ -113,6 +159,16 @@ class _MyAppState extends State<MyApp> {
               li = value;
             });
           },
+          shape: RoundedRectangleBorder(
+            borderRadius:
+              BorderRadius.circular(4),
+          ),
+          side: const BorderSide(
+            color: Colors.orange,
+            width: 1,
+          ),
+          activeColor: Colors.orange,
+          checkColor: Colors.white,
         ),
       ],
     );
@@ -121,6 +177,12 @@ class _MyAppState extends State<MyApp> {
   Widget _buildDropdown() {
     return DropdownButton<String>(
       value: _selectedwind, // 현재 선택된 값
+      icon: FaIcon(FontAwesomeIcons.angleDown),
+      iconSize: 15,
+      style: TextStyle(fontSize: 20, color: Colors.black),
+      underline: Container(
+        height: 0,
+      ),
       onChanged: (String? newValue) {
         setState(() {
           _selectedwind = newValue; // 새로운 값으로 업데이트
@@ -138,9 +200,9 @@ class _MyAppState extends State<MyApp> {
   Widget _buildPhotoArea() {
     return _image != null
         ? Container(
-      width: 300,
-      height: 300,
-      child: Image.file(File(_image!.path)), //가져온 이미지를 화면에 띄워주는 코드
+          width: 300,
+          height: 300,
+          child: Image.file(File(_image!.path)), //가져온 이미지를 화면에 띄워주는 코드
     )
         : Container(
       width: 300,
@@ -189,10 +251,6 @@ class _MyAppState extends State<MyApp> {
     return BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-          icon: Icon(Icons.library_books),
-          label: '족보 가이드',
-        ),
-        BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: '메인',
         ),
@@ -201,13 +259,10 @@ class _MyAppState extends State<MyApp> {
           label: '커뮤니티',
         ),
       ],
-      currentIndex: 1,
+      currentIndex: 0,
       selectedItemColor: Colors.orange,
       onTap: (int index) {
-        if (index == 0) { // 커뮤니티 아이템이 선택되었을 때
-          _navigatorKey.currentState!.push(MaterialPageRoute(builder: (context) => Guide())); // 새로운 화면 띄우기
-        }
-        if (index == 2) { // 커뮤니티 아이템이 선택되었을 때
+        if (index == 1) { // 커뮤니티 아이템이 선택되었을 때
           _navigatorKey.currentState!.push(MaterialPageRoute(builder: (context) => Community())); // 새로운 화면 띄우기
         }
       },
