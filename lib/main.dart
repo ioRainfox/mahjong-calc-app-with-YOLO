@@ -4,16 +4,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:camera/camera.dart'; // 카메라 패키지 import
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:file_picker/file_picker.dart'; // file_picker 패키지 import
 
+import 'CameraScreen.dart';
 import 'ScreenB.dart'; // ScreenB 파일 import 추가
 import 'Community.dart';
 import 'Guide.dart';
 
+List<CameraDescription> cameras = []; // 카메라 리스트 초기화
 
-
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  cameras = await availableCameras(); // 사용 가능한 카메라 목록 가져오기
   runApp(const MyApp());
 }
 
@@ -30,34 +34,53 @@ class _MyAppState extends State<MyApp> {
   bool? li = false;
   final _wind = ['동', '서', '남', '북'];
   String? _selectedwind;
-  XFile? _image; //이미지를 담을 변수 선언
-  final ImagePicker picker = ImagePicker(); //ImagePicker 초기화
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>(); // 네비게이터 컨텍스트 접근 가능
-
-  //이미지를 가져오는 함수
-  Future getImage(ImageSource imageSource) async {
-    //pickedFile에 ImagePicker로 가져온 이미지가 담긴다.
-    final XFile? pickedFile = await picker.pickImage(source: imageSource);
-    if (pickedFile != null) {
-      setState(() {
-        _image = XFile(pickedFile.path); //가져온 이미지를 _image에 저장
-      });
-    }
-  }
+  XFile? _image;
+  CameraController? _cameraController; // 카메라 컨트롤러 추가
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      _selectedwind = _wind[0]; // 초기 선택값 설정
+      _selectedwind = _wind[0];
     });
+    _initializeCamera(); // 카메라 초기화 함수 호출
+  }
+
+  Future<void> _initializeCamera() async {
+    _cameraController = CameraController(
+      cameras[0], // 첫 번째 카메라 선택
+      ResolutionPreset.medium, // 해상도 설정
+    );
+    await _cameraController!.initialize(); // 카메라 초기화
+  }
+
+  @override
+  void dispose() {
+    if (_cameraController != null) {
+      _cameraController!.dispose(); // 카메라 컨트롤러 해제
+    }
+    super.dispose();
+  }
+
+  Future<void> _getImageFromCamera() async {
+    try {
+      if (_cameraController != null && _cameraController!.value.isInitialized) {
+        XFile imageFile = await _cameraController!.takePicture(); // 카메라로 사진 촬영
+        setState(() {
+          _image = imageFile;
+        });
+      }
+    } catch (e) {
+      print(e); // 오류 발생 시 오류 메시지 출력
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     return MaterialApp(
-      navigatorKey: _navigatorKey, // Assigning navigator key
+      navigatorKey: _navigatorKey,
       home: Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -72,7 +95,7 @@ class _MyAppState extends State<MyApp> {
             children: [
               const SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center, // 체크박스를 가운데로 정렬
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _check(),
                   const SizedBox(width: 25,),
@@ -89,7 +112,7 @@ class _MyAppState extends State<MyApp> {
             ],
           ),
         ),
-        bottomNavigationBar: _BottomBar(), // 하단 바 추가
+        bottomNavigationBar: _BottomBar(),
       ),
     );
   }
@@ -98,9 +121,9 @@ class _MyAppState extends State<MyApp> {
     return Row(
       children: [
         OutlinedButton(
-            onPressed: () {
-              _navigatorKey.currentState!.push(MaterialPageRoute(builder: (context) => Guide()));
-            },
+          onPressed: () {
+            _navigatorKey.currentState!.push(MaterialPageRoute(builder: (context) => Guide()));
+          },
           child: const Text('my'),
         )
       ],
@@ -121,7 +144,7 @@ class _MyAppState extends State<MyApp> {
           },
           shape: RoundedRectangleBorder(
             borderRadius:
-              BorderRadius.circular(4),
+            BorderRadius.circular(4),
           ),
           side: const BorderSide(
             color: Colors.orange,
@@ -141,7 +164,7 @@ class _MyAppState extends State<MyApp> {
           },
           shape: RoundedRectangleBorder(
             borderRadius:
-              BorderRadius.circular(4),
+            BorderRadius.circular(4),
           ),
           side: const BorderSide(
             color: Colors.orange,
@@ -161,7 +184,7 @@ class _MyAppState extends State<MyApp> {
           },
           shape: RoundedRectangleBorder(
             borderRadius:
-              BorderRadius.circular(4),
+            BorderRadius.circular(4),
           ),
           side: const BorderSide(
             color: Colors.orange,
@@ -176,7 +199,7 @@ class _MyAppState extends State<MyApp> {
 
   Widget _buildDropdown() {
     return DropdownButton<String>(
-      value: _selectedwind, // 현재 선택된 값
+      value: _selectedwind,
       icon: FaIcon(FontAwesomeIcons.angleDown),
       iconSize: 15,
       style: TextStyle(fontSize: 20, color: Colors.black),
@@ -185,7 +208,7 @@ class _MyAppState extends State<MyApp> {
       ),
       onChanged: (String? newValue) {
         setState(() {
-          _selectedwind = newValue; // 새로운 값으로 업데이트
+          _selectedwind = newValue;
         });
       },
       items: _wind.map<DropdownMenuItem<String>>((String value) {
@@ -200,9 +223,9 @@ class _MyAppState extends State<MyApp> {
   Widget _buildPhotoArea() {
     return _image != null
         ? Container(
-          width: 300,
-          height: 300,
-          child: Image.file(File(_image!.path)), //가져온 이미지를 화면에 띄워주는 코드
+      width: 300,
+      height: 300,
+      child: Image.file(File(_image!.path)),
     )
         : Container(
       width: 300,
@@ -216,21 +239,66 @@ class _MyAppState extends State<MyApp> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ElevatedButton(
-          onPressed: () {
-            getImage(ImageSource.camera); //getImage 함수를 호출해서 카메라로 찍은 사진 가져오기
+          onPressed: () async {
+            if (_cameraController != null && _cameraController!.value.isInitialized) {
+              final image = await Navigator.push<XFile>(
+                _navigatorKey.currentContext!,
+                MaterialPageRoute(
+                  builder: (context) => CameraScreen(cameraController: _cameraController!),
+                ),
+              );
+              if (image != null) {
+                setState(() {
+                  _image = image;
+                });
+              }
+            }
           },
           child: const Text("카메라"),
         ),
         const SizedBox(width: 30),
         ElevatedButton(
           onPressed: () {
-            getImage(ImageSource.gallery); //getImage 함수를 호출해서 갤러리에서 사진 가져오기
+            _getImageFromGallery(); // 갤러리에서 사진을 가져오는 함수 호출
           },
           child: const Text("갤러리"),
         ),
+        const SizedBox(width: 30),
+        ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _image = null;
+              });
+            },
+            child: const Text("사진 초기화")
+        )
       ],
     );
   }
+
+
+  Future<void> _getImageFromGallery() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.any, // 모든 파일 선택
+        allowMultiple: true, // 다중 선택 활성화
+      );
+      if (result != null) {
+        List<File> files = result.paths.map((path) => File(path!)).toList();
+        // 여러 파일 중 이미지 파일만 필터링
+        List<File> imageFiles = files.where((file) => file.path.endsWith('.jpg') || file.path.endsWith('.jpeg') || file.path.endsWith('.png')).toList();
+        // 이미지 파일 중 첫 번째 파일 선택
+        if (imageFiles.isNotEmpty) {
+          setState(() {
+            _image = XFile(imageFiles.first.path);
+          });
+        }
+      }
+    } catch (e) {
+      print(e); // 오류 발생 시 오류 메시지 출력
+    }
+  }
+
 
   Widget _calcButton() {
     return Row(
@@ -238,13 +306,17 @@ class _MyAppState extends State<MyApp> {
       children: [
         ElevatedButton(
           onPressed: () {
-            _navigatorKey.currentState!.push(MaterialPageRoute(builder: (context) => ScreenB()));
+            if(_image == null) {
+
+            }
+            else {
+              _navigatorKey.currentState!.push(MaterialPageRoute(builder: (context) => ScreenB()));
+            }
           },
           child: const Text("계산 하기"),
         )
       ],
     );
-
   }
 
   Widget _BottomBar() {
@@ -262,8 +334,8 @@ class _MyAppState extends State<MyApp> {
       currentIndex: 0,
       selectedItemColor: Colors.orange,
       onTap: (int index) {
-        if (index == 1) { // 커뮤니티 아이템이 선택되었을 때
-          _navigatorKey.currentState!.push(MaterialPageRoute(builder: (context) => Community())); // 새로운 화면 띄우기
+        if (index == 1) {
+          _navigatorKey.currentState!.push(MaterialPageRoute(builder: (context) => Community()));
         }
       },
     );
